@@ -6,7 +6,7 @@ there is an increasing interest in zero-shot image tagging, aiming to tag images
 This project provides pure python (and thus cross-platform) implementation of two semantic embedding based methods for zero-shot image tagging,
 namely Convex Semantic Embedding (ConSE) [1] and Hierarchical Semantic Embedding (HierSE) [2].
 
-![Zero-shot image tagging by hierarchical semantic embedding](hierse-framework.png = 800x)
+![Zero-shot image tagging by hierarchical semantic embedding](hierse-framework.png)
 
 ***Why Hierarchical Semantic Embedding?***
 
