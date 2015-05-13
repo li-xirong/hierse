@@ -20,7 +20,7 @@ namely Convex Semantic Embedding (ConSE) [1] and Hierarchical Semantic Embedding
 1. [numpy](www.numpy.org) 
 2. [simpleknn](https://github.com/li-xirong/simpleknn): use its [bigfile.py](https://github.com/li-xirong/simpleknn/blob/master/bigfile.py) to access word2vec models stored in a binary format, and [txt2bin.py](https://github.com/li-xirong/simpleknn/blob/master/txt2bin.py) to convert text files into such a binary format. 
 Get it by `git clone https://github.com/li-xirong/simpleknn`, put it in `PYTHONPATH`, and try `python -c "from simpleknn.bigfile import BigFile"`
-3. [pre-trained word2vec model](http://www.mmc.ruc.edu.cn/research/hierse/flickr4m.word2vec.tar.gz): learned from social tags of over 4 million Flickr images using [Word2Vec](code.google.com/p/word2vec). The pre-trained model is also available at (google drive)[https://drive.google.com/open?id=0B89Vll9z5OVEfnRHUWRSY0dkRjNuRVZYUGtzY0ltVTZ2bkRvSVBTRjd0akEwckVMZGV6WTQ&authuser=0].
+3. [pre-trained word2vec model](http://www.mmc.ruc.edu.cn/research/hierse/flickr4m.word2vec.tar.gz): learned from social tags of over 4 million Flickr images using [Word2Vec](code.google.com/p/word2vec). The pre-trained model is also available at [google drive](https://drive.google.com/open?id=0B89Vll9z5OVEfnRHUWRSY0dkRjNuRVZYUGtzY0ltVTZ2bkRvSVBTRjd0akEwckVMZGV6WTQ&authuser=0).
 
 
 ## Getting started
