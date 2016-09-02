@@ -65,4 +65,4 @@ Common steps to perform zero-shot tagging on a test image set `X`:
 
 1. Mohammad Norouzi, Tomas Mikolov, Samy Bengio, Yoram Singer, Jonathon Shlens, Andrea Frome, Greg Corrado, Jeffrey Dean, 
 Zero-shot learning by convex combination of semantic embedding, ICLR, 2014
-2. Xirong Li, Shuai Liao, Weiyu Lan, Xiaoyong Du, Gang Yang, [Zero-shot image tagging by hierarchical semantic embedding](http://www.mmc.ruc.edu.cn/research/hierse/index.html), SIGIR, 2015
+2. Xirong Li, Shuai Liao, Weiyu Lan, Xiaoyong Du, Gang Yang, [Zero-shot image tagging by hierarchical semantic embedding](http://lixirong.net/pub/sigir2015-hierse.pdf), SIGIR, 2015
