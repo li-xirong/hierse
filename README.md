@@ -50,12 +50,12 @@ The four classes corresponds to four different methods (conse, conse2, hierse, h
 
 
 The `Image2Vec` class in [im2vec.py](im2vec.py) projects an (unlabeled) image to this layer. The training label set is [ImageNet1k](data/synset_words_ilsvrc12_test1k.txt).
-Our code assumes that probabilistic relevance score of each training label with respect to the image has been pre-computed and stored. see the provided sample set **imagenet2hop-random2k**. That said, as long as you have a pre-trained (CNN) model that can predict the 1k ILSVRC12 labels, the code still works, see the [tutorial](tutorial.ipynb) page.
+Our code assumes that probabilistic relevance score of each training label with respect to the image has been pre-computed and stored. see the provided sample set **imagenet2hop-random2k**. That said, as long as you have a pre-trained (CNN) model that can predict the 1k ILSVRC12 labels, the code still works, see the [tutorial](tutorial.md) page.
 
 
 Having both image and label vectorized, the `ZeroshotTagger` class in [tagger.py](tagger.py) predicts the most likely labels.
 
-Run [test\_all.py](test_all.py) to see if everything is in place. For hands-on examples, please refer to scripts in the [doit](doit) folder and the [tutorial](tutorial.ipynb) page.
+Run [test\_all.py](test_all.py) to see if everything is in place. For hands-on examples, please refer to scripts in the [doit](doit) folder and the [tutorial](tutorial.md) page.
 
 ## Using your own data (images and labels)
 
