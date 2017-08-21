@@ -1,12 +1,20 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
 import sys
 import numpy as np
+import logging
 
-from basic.common import printStatus, ROOT_PATH
+from constant import *
 from simpleknn.bigfile import BigFile
 
-
-INFO = os.path.basename(__file__)
+logger = logging.getLogger(__file__)
+logging.basicConfig(
+    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s",
+    datefmt='%d %b %H:%M:%S')
+logger.setLevel(logging.INFO)
 
 
 def cosine_similarity(vecx, vecy):
@@ -16,8 +24,8 @@ def cosine_similarity(vecx, vecy):
 
 class ZeroshotTagger:
 
-    def __init__(self, synset_name='imagenet1k2hop', embedding_name='flickr4m,tagvec500,hierse2', rootpath=ROOT_PATH):
-        feat_dir = os.path.join(rootpath, 'synset2vec', synset_name, embedding_name)
+    def __init__(self, Y1=DEFAULT_Y1, label_vec_name=DEFAULT_LABEL_VEC_NAME, rootpath=ROOT_PATH):
+        feat_dir = os.path.join(rootpath, 'synset2vec', Y1, label_vec_name)
         feat_file = BigFile(feat_dir)
         self.labels = feat_file.names
         self.nr_of_labels = len(self.labels)
@@ -32,7 +40,7 @@ class ZeroshotTagger:
             self.label_vectors[i] = np.array(vectors[idx]) if idx >= 0 else None
 
         nr_of_inactive_labels = len([x for x in self.label_vectors if x is None])    
-        printStatus(INFO + '.' + self.__class__.__name__, '#active_labels=%d, embedding_size=%d' % (self.nr_of_labels - nr_of_inactive_labels, self.feat_dim))
+        logger.info('#active_labels=%d, embedding_size=%d', self.nr_of_labels - nr_of_inactive_labels, self.feat_dim)
 
 
     def _compute(self, img_vec):
@@ -50,33 +58,30 @@ class ZeroshotTagger:
 
 
 if __name__ == '__main__':
-    rootpath = ROOT_PATH
-
-    embedding_model = 'hierse2'
-    embedding_name = 'flickr4m,tagvec500,%s' % embedding_model
-    tagger = ZeroshotTagger(embedding_name = embedding_name)
-    label_file = 'data/ilsvrc12/synsets.txt'
-    label2vec_dir = os.path.join(rootpath, 'synset2vec', 'imagenet1k', embedding_name)
     from im2vec import Image2Vec
-    i2v = Image2Vec(label_file, label2vec_dir)
+    from eval import HitScorer
 
-    from basic.util import readImageSet
-    testCollection = 'imagenet2hop'
-    imset = readImageSet(testCollection, 'random100k', rootpath)
+    rootpath = ROOT_PATH
+    embedding = 'hierse'
+    embedding_name = 'flickr4m,tagvec500,%s' % embedding
+    testCollection = 'imagenet2hop-random2k'
     feature = 'dascaffeprob'
+    
+    tagger = ZeroshotTagger(embedding_name = embedding_name)   
+    i2v = Image2Vec(label_vec_name=embedding_name)
+    
+    imset = utility.readImageSet(testCollection, testCollection, rootpath)
     feat_file = BigFile(os.path.join(rootpath, testCollection, 'FeatureData', feature))
 
-    blocksize = 1000
+    batch_size = 1000
     start = 0
-
-    from eval import HitScorer
 
     scorers = [HitScorer(n) for n in [1, 2, 5, 10]]
     overall_perf = [0.0] * len(scorers)
     nr_of_images = 0
 
     while start < len(imset):
-        end = min(len(imset), start + blocksize)
+        end = min(len(imset), start + batch_size)
         renamed, vectors = feat_file.read(imset[start:end])
 
         for _id,_vec in zip(renamed, vectors):
@@ -87,13 +92,11 @@ if __name__ == '__main__':
             perf = [scorer.score(sorted_labels) for scorer in scorers]
             overall_perf = [overall_perf[i] + perf[i] for i in range(len(scorers))]
             nr_of_images += 1
-        break
-
+        start = end
+    
     res = [x/nr_of_images for x in overall_perf]
-    print ' '.join([x.name() for x in scorers])
-    print ' '.join(['%.3f' % x for x in res])
-
-
+    print (' '.join([x.name() for x in scorers]))
+    print (' '.join(['%.3f' % x for x in res]))
 
 
 

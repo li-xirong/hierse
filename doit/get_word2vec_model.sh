@@ -6,14 +6,20 @@ if [ ! -d "$rootpath" ]; then
     exit
 fi
 
+target_dir=${rootpath}/flickr4m
+
+if [  -d "${target_dir}" ]; then
+    echo "${target_dir} exists. quit"
+    exit
+fi
 
 DIR="$( cd "$(dirname "$0")" ; pwd -P )"
 cd $DIR
 
 echo "Downloading..."
 
-#wget http://www.mmc.ruc.edu.cn/research/hierse/flickr4m.word2vec.tar.gz
 wget http://lixirong.net/data/sigir2015/flickr4m.word2vec.tar.gz
+
 # or manually download the zipped file from https://drive.google.com/open?id=0B89Vll9z5OVEfnRHUWRSY0dkRjNuRVZYUGtzY0ltVTZ2bkRvSVBTRjd0akEwckVMZGV6WTQ&authuser=0
 
 echo "Unzipping..."

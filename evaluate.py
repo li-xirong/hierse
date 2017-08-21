@@ -1,10 +1,19 @@
 # coding: utf8
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os
 import sys
-from basic.common import ROOT_PATH, printStatus
+import logging
 
-INFO = os.path.basename(__file__)
+from constant import *
 
+logger = logging.getLogger(__file__)
+logging.basicConfig(
+    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s",
+    datefmt='%d %b %H:%M:%S')
+logger.setLevel(logging.INFO)
 
 class MetricScorer:
 
@@ -31,13 +40,13 @@ class HitScorer (MetricScorer):
     def score(self, sorted_labels):
         length = self.getLength(sorted_labels)
         for i in xrange(length):
-            if 1 <= sorted_labels[i]:
+            if sorted_labels[i] >= 1:
                 return 1.0
         return 0.0
 
 
 
-# For Imagenet, the ground truth synset ID is included in the imagenetID:  {wnid}_{suffix}
+# For ImageNet, the ground truth synset ID is included in the imagenetID:  {wnid}_{suffix}
 def load_ground_truth(collection, imset=None, rootpath=ROOT_PATH):
     if not imset:
         imset = map(str.strip, open(os.path.join(rootpath, collection, 'ImageSets', '%s.txt'%collection)).readlines())
@@ -51,10 +60,11 @@ def process(options, testCollection, method):
 
     scorers = [HitScorer(k) for k in [1, 2, 5, 10]]
     im2truth = load_ground_truth(testCollection, imset=None, rootpath=rootpath)
-    printStatus(INFO, 'nr of ground-truthed images: %d' % len(im2truth))
+    logger.info('nr of ground-truthed images: %d', len(im2truth))
 
     tag_prediction_file = os.path.join(rootpath, testCollection,'autotagging', testCollection, method, 'id.tagvotes.txt')
-    printStatus(INFO, 'evaluating %s' % tag_prediction_file)
+    logger.info('evaluating %s', tag_prediction_file)
+
     res = [0] * len(scorers)
     nr_of_images = 0
 
@@ -73,11 +83,11 @@ def process(options, testCollection, method):
         res = [res[i] + perf[i] for i in range(len(scorers))]
         nr_of_images += 1
 
-    printStatus(INFO, 'nr of images: %d' % nr_of_images)
+    logger.info('%d images scored', nr_of_images)
     res = [x/nr_of_images for x in res]
 
-    print ' '.join([x.name() for x in scorers])
-    print ' '.join(['%.3f' % x for x in res])
+    print (' '.join([x.name() for x in scorers]))
+    print (' '.join(['%.3f' % x for x in res]))
 
 
 

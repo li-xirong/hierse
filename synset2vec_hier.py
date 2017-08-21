@@ -1,12 +1,26 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import math
 import os
 import numpy as np
-from basic.common import printStatus, ROOT_PATH
+import logging
+
+from constant import *
 from synset2vec import Synset2Vec, PartialSynset2Vec
+
+
+logger = logging.getLogger(__file__)
+logging.basicConfig(
+    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s",
+    datefmt='%d %b %H:%M:%S')
+logger.setLevel(logging.INFO)
+
 
 class WordnetHierarchy:
 
-    def __init__(self, is_a_file='data/wordnet.is_a.txt'):
+    def __init__(self, is_a_file=DEFAULT_IS_A_FILE):
         parent_child = [x.strip().split() for x in open(is_a_file).readlines() if x.strip()]
         '''
         As the wordnet hierarcy is a net, some node may have more than one parent nodes.
@@ -27,10 +41,10 @@ class WordnetHierarchy:
 
 class HierSynset2Vec (Synset2Vec):
 
-    def __init__(self, corpus, modelName, wnid2words_file='data/wnid2words.pkl', is_a_file='data/wordnet.is_a.txt', rootpath=ROOT_PATH):
-        Synset2Vec.__init__(self, corpus, modelName, wnid2words_file, rootpath)
+    def __init__(self, corpus=DEFAULT_W2V_CORPUS, w2v_name=DEFAULT_W2V, wnid2words_file=DEFAULT_WNID2WORDS_FILE, is_a_file=DEFAULT_IS_A_FILE, rootpath=ROOT_PATH):
+        Synset2Vec.__init__(self, corpus, w2v_name, wnid2words_file, rootpath)
         self.hier = WordnetHierarchy(is_a_file)
-        self.max_layer = 7
+        self.max_layer = DEFAULT_MAX_LAYER
 
     def embedding(self, query_wnid):
         word2weight = {}
@@ -41,7 +55,7 @@ class HierSynset2Vec (Synset2Vec):
         word_vecs = []
     
         for layer,ance_id in enumerate(ancestor_list):
-            vec = self.mapping(ance_id)
+            vec = self._mapping(ance_id)
             if vec is not None:
                 word_vecs.append(vec)
                 weights.append( math.exp(-layer) )
@@ -56,8 +70,8 @@ class HierSynset2Vec (Synset2Vec):
 
 class HierPartialSynset2Vec (HierSynset2Vec, PartialSynset2Vec):
 
-    def mapping(self, wnid):
-        return PartialSynset2Vec.mapping(self, wnid)
+    def _mapping(self, wnid):
+        return PartialSynset2Vec._mapping(self, wnid)
 
     def embedding(self, query_wnid):
         return HierSynset2Vec.embedding(self, query_wnid)
@@ -87,27 +101,24 @@ if __name__ == '__main__':
     wnhier = WordnetHierarchy()
     for wnid in queryset:
         ancestor_list = wnhier.get_ancestors(wnid)
-        print wnid, syn2vec_list[0].explain(wnid)
-        print [syn2vec_list[0].explain(x) for x in ancestor_list]
-        print ''
+        print (wnid, syn2vec_list[0].explain(wnid))
+        print ([syn2vec_list[0].explain(x) for x in ancestor_list])
+        print ('')
 
 
     from simpleknn import simpleknn
     feat_dir = os.path.join(rootpath, corpus, 'word2vec', word2vec_model)
-    dim = syn2vec_list[0].word2vec.ndims
-    nr_of_images = syn2vec_list[0].word2vec.nr_of_images 
-    id_file = os.path.join(feat_dir, 'id.txt')
-    searcher = simpleknn.load_model(os.path.join(feat_dir, "feature.bin"), dim, nr_of_images, id_file)
+    searcher = simpleknn.load_model(feat_dir)
 
     
     for wnid in queryset:
         for s2v in syn2vec_list:
             vec = s2v.embedding(wnid)
-            print s2v, wnid, s2v.explain(wnid)
+            print (s2v, wnid, s2v.explain(wnid))
             for distance in ['l2']:
                 searcher.set_distance(distance)
                 visualNeighbors = searcher.search_knn(vec, max_hits=100)
-                print wnid, distance, visualNeighbors[:10]
-                print '-'*100
+                print (wnid, distance, visualNeighbors[:10])
+                print ('-'*100)
 
 

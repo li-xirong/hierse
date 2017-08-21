@@ -1,61 +1,66 @@
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import sys
 import os
 import numpy as np
-from basic.common import checkToSkip, makedirsforfile, niceNumber, ROOT_PATH, printStatus
-from basic.util import readImageSet
-from simpleknn.bigfile import BigFile
+import logging
 
+from constant import *
+from simpleknn.bigfile import BigFile
+import utility
 from tagger import ZeroshotTagger
 from im2vec import Image2Vec
-from build_synset_vec import DEFAULT_CORPUS, DEFAULT_WORD2VEC, DEFAULT_EMBEDDING
 
-DEFAULT_Y0 = 'imagenet1k'
-DEFAULT_Y1 = 'imagenet1k2hop'
-DEFAULT_pY0 = 'dascaffeprob'
 DEFAULT_R = 20
 
-INFO = os.path.basename(__file__)
+logger = logging.getLogger(__file__)
+logging.basicConfig(
+    format="[%(asctime)s - %(filename)s:line %(lineno)s] %(message)s",
+    datefmt='%d %b %H:%M:%S')
+logger.setLevel(logging.INFO)
 
 
 def process(options, testCollection):
     overwrite = options.overwrite
     rootpath = options.rootpath
-    corpus = options.corpus
-    word2vec_model = options.word2vec
-    embedding_model = options.embedding
+    
     Y0 = options.Y0
     Y1 = options.Y1
     pY0 = options.pY0
     r = options.r
-    blocksize = 2000
 
-    embedding_name = '%s,%s,%s' % (corpus, word2vec_model, embedding_model)
+    batch_size = 2000
+
+    label_vec_name = '%s,%s,%s' % (options.w2v_corpus, options.w2v, options.embedding)
     for synset_name in [Y0, Y1]:
-        assert(os.path.exists(os.path.join(rootpath, 'synset2vec', synset_name, embedding_name)))
+        assert(os.path.exists(os.path.join(rootpath, 'synset2vec', synset_name, label_vec_name)))
 
-    resfile = os.path.join(rootpath, testCollection, 'autotagging', testCollection, embedding_name, pY0, 'id.tagvotes.txt')
-    if checkToSkip(resfile, overwrite):
+    resfile = os.path.join(rootpath, testCollection, 'autotagging', testCollection, pY0, label_vec_name, 'id.tagvotes.txt')
+
+    if os.path.exists(resfile) and not overwrite:
+        logger.info('%s exists. quit', resfile)
         return 0
 
-    label_file = 'data/ilsvrc12/synsets.txt'
-    label2vec_dir = os.path.join(rootpath, 'synset2vec', Y0, embedding_name)
-    i2v = Image2Vec(label_file, label2vec_dir)
+    i2v = Image2Vec(Y0=Y0, label_vec_name=label_vec_name)
+    tagger = ZeroshotTagger(Y1=Y1, label_vec_name=label_vec_name, rootpath=rootpath)
 
-    tagger = ZeroshotTagger(synset_name=Y1, embedding_name=embedding_name, rootpath=rootpath)
-
-    imset = readImageSet(testCollection, testCollection, rootpath)
+    imset = utility.readImageSet(testCollection, testCollection, rootpath)
     feat_dir = os.path.join(rootpath, testCollection, 'FeatureData', pY0)
     feat_file = BigFile(feat_dir)
     
 
-    printStatus(INFO, 'tagging %d images' % len(imset))
-    makedirsforfile(resfile)
+    logger.info('tagging %d images', len(imset))
+    utility.makedirsforfile(resfile)
+    logger.info('save results to %s', resfile)
+
     fw = open(resfile, 'w')
 
     start = 0
     while start < len(imset):
-        end = min(len(imset), start + blocksize)
-        printStatus(INFO, 'processing images from %d to %d' % (start, end))
+        end = min(len(imset), start + batch_size)
+        logger.info('processing images from %d to %d', start, end)
         todo = imset[start:end]
         if not todo:
             break
@@ -81,8 +86,8 @@ def main(argv=None):
     parser = OptionParser(usage="""usage: %prog [options] testCollection""")
     parser.add_option("--overwrite", default=0, type="int", help="overwrite existing file (default: 0)")
     parser.add_option("--rootpath", default=ROOT_PATH, type="string", help="rootpath (default: %s)" % ROOT_PATH)
-    parser.add_option("--corpus", default=DEFAULT_CORPUS, type="string", help="corpus using which word2vec is trained (default: %s)" % DEFAULT_CORPUS)
-    parser.add_option("--word2vec", default=DEFAULT_WORD2VEC, type="string", help="word2vec model (default: %s)" % DEFAULT_WORD2VEC)
+    parser.add_option("--w2v_corpus", default=DEFAULT_W2V_CORPUS, type="string", help="corpus using which word2vec is trained (default: %s)" % DEFAULT_W2V_CORPUS)
+    parser.add_option("--w2v", default=DEFAULT_W2V, type="string", help="word2vec model (default: %s)" % DEFAULT_W2V)
     parser.add_option("--embedding", default=DEFAULT_EMBEDDING, type="string", help="embedding model (default: %s)" % DEFAULT_EMBEDDING)
     parser.add_option("--Y0", default=DEFAULT_Y0, type="string", help="training labels (default: %s)" % DEFAULT_Y0)
     parser.add_option("--Y1", default=DEFAULT_Y1, type="string", help="test labels (default: %s)" % DEFAULT_Y1)
@@ -95,8 +100,8 @@ def main(argv=None):
         parser.print_help()
         return 1
     
-    assert('imagenet1k' == options.Y0)
-    assert('imagenet1k2hop' == options.Y1)
+    assert(DEFAULT_Y0 == options.Y0)
+    assert(DEFAULT_Y1 == options.Y1)
     return process(options, args[0])
 
 
