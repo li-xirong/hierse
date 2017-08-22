@@ -49,8 +49,8 @@ The four classes corresponds to four different methods (conse, conse2, hierse, h
 4. hierse2: partial match + hierarchy
 
 
-The `Image2Vec` class in [im2vec.py](im2vec.py) projects an (unlabeled) image to this layer. The training label set is [ImageNet1k](data/synset_words_ilsvrc12_test1k.txt).
-Our code assumes that probabilistic relevance score of each training label with respect to the image has been pre-computed and stored. see the provided sample set **imagenet2hop-random2k**. That said, as long as you have a pre-trained (CNN) model that can predict the 1k ILSVRC12 labels, the code still works, see the [tutorial](tutorial.md) page.
+The `Image2Vec` class in [im2vec.py](im2vec.py) projects an (unlabeled) image to this layer. The training label set is [ImageNet ilsvrc12\_test1k](data/synset_words_ilsvrc12_test1k.txt).
+Our code assumes that probabilistic relevance score of each training label with respect to the image has been pre-computed and stored. see the provided sample set **imagenet2hop-random2k**. That said, as long as you have a pre-trained (CNN) model, e.g., [caffenet](https://github.com/BVLC/caffe/tree/master/models/bvlc_reference_caffenet) or [tensorflow series](https://github.com/tensorflow/models/tree/master/slim#Pretrained), that can predict the 1k ILSVRC12 labels, the code also works, see the [tutorial](tutorial.md) page.
 
 
 Having both image and label vectorized, the `ZeroshotTagger` class in [tagger.py](tagger.py) predicts the most likely labels.
