@@ -37,6 +37,9 @@ cd ..
 python test_all.py
 ```
 
+Run [test\_all.py](test_all.py) to see if everything is in place. For hands-on examples, please refer to scripts in the [doit](doit) folder and the [tutorial](tutorial.md) page.
+
+
 ## Implementation
 
 The process of projecting a novel label to the w2v layer is described in the `Synset2Vec` class, `PartialSynset2Vec` class in [synset2vec.py](synset2vec.py),
@@ -55,7 +58,6 @@ Our code assumes that probabilistic relevance score of each training label with 
 
 Having both image and label vectorized, the `ZeroshotTagger` class in [tagger.py](tagger.py) predicts the most likely labels.
 
-Run [test\_all.py](test_all.py) to see if everything is in place. For hands-on examples, please refer to scripts in the [doit](doit) folder and the [tutorial](tutorial.md) page.
 
 ## Using your own data (images and labels)
 
