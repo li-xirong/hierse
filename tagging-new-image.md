@@ -1,5 +1,5 @@
 
-# Zero-shot tagging on a new image using hierse and tensorflow
+# Tagging a new image using hierse and tensorflow
 
 ## Setup
 
