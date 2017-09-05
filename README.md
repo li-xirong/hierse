@@ -39,6 +39,8 @@ python test_all.py
 
 Run [test\_all.py](test_all.py) to see if everything is in place. For hands-on examples, please refer to scripts in the [doit](doit) folder and the [tutorial](tutorial.md) page.
 
+* [Use hierse and tensorflow to tag a new image](tagging-new-image.md)
+
 
 ## Implementation
 
